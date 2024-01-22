@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block body %}
+
+	<h1>Almacenes</h1>
+	<h2>Bienvenido a la web de almacenes.</h2>
+	<p>Página de inicio</p>
+    {% if app.user %}
+                <button><a href="{{ path('alta') }}"><i class="fa fa-sign-out sr-icons"></i>Alta nuevo empleado</a></button>
+                <button><a href="{{ path('app_logout') }}"><i class="fa fa-sign-out sr-icons"></i> {{ app.user.name }} - Logout</a></button>
+                  {% if is_granted('ROLE_ADMIN') %}
+	    	            <button><a href="{{ path('admin')}}">Admin Zone</a></button>
+			            {% endif %}	
+              {% else %}
+                <button class="{{ (app.request.attributes.get('_route') == 'app_login')  ? 'active': ''}} lien"><a href="{{ path('app_login') }}"><i class="fa fa-sign-in sr-icons"></i> Login</a></button>
+                <button class="{{ (app.request.attributes.get('_route') == 'app_register')  ? 'active': ''}} "><a href="{{ path('app_register') }}"><i class="fa fa-user-secret sr-icons"></i> Register</a></button>
+              {% endif %}
+
+{% endblock %}
