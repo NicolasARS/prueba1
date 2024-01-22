@@ -3,10 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Empleado;
+use App\Entity\Seccion;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\EmpleadoFormType;
+use App\Form\SeccionFormType;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,20 +36,22 @@ class PageController extends AbstractController
                 $originalFilename = pathinfo($foto->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$foto->guessExtension();
-                $foto->setFoto($newFilename);
+
+                // Mover el archivo subido
                 $uploadDir = $this->getParameter('kernel.project_dir') . '/public/images/empleados';
                 $foto->move($uploadDir, $newFilename);
-            }
 
-            // Guardar la entidad en la base de datos
-            $form = $form->getData();
+                // Asignar el nuevo nombre de archivo a la propiedad de la entidad Empleado
+                $empleado->setFoto($newFilename);
+    }
 
-            $entityManager = $doctrine->getManager();
-            $entityManager->persist($empleado);
-            $entityManager->flush();
+    // Guardar la entidad en la base de datos
+    $entityManager = $doctrine->getManager();
+    $entityManager->persist($empleado);
+    $entityManager->flush();
 
-            // Redirigir o mostrar una confirmación
-            return $this->redirectToRoute('ficha-empleado');
+    // Redirigir o mostrar una confirmación
+    return $this->redirectToRoute('ficha-empleado');
         }
 
         return $this->render('page/alta.html.twig', [
@@ -56,17 +60,36 @@ class PageController extends AbstractController
         );
     }
 
-    #[Route('/ficha-empleado', name: 'ficha-empleado')]
-    public function ficha_empleado(): Response
+    #[Route('/ficha-empleado/{id}', name: 'ficha-empleado')]
+    public function ficha_empleado(ManagerRegistry $doctrine, $id): Response
     {
-        return $this->render('page/index.html.twig'
+        $empleadoRepo = $doctrine->getRepository(Empleado::Class);
+        $empleado = $empleadoRepo->find($id);
+
+
+        return $this->render('page/ficha_empleado.html.twig', [
+            'empleado' => $empleado
+        ]
         );
     }
     
-    #[Route('/baja-empleado', name: 'baja')]
-    public function baja(): Response
+    #[Route('/secciones', name: 'secciones')]
+    public function secciones(ManagerRegistry $doctrine, Request $request): Response
     {
-        return $this->render('page/index.html.twig'
+        $seccion = new Seccion();
+        $form = $this->createForm(SeccionFormType::class, $seccion);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            
+        $entityManager = $doctrine->getManager();
+        $entityManager->persist($seccion);
+        $entityManager->flush();
+        }
+        
+        return $this->render('page/secciones.html.twig', [
+            'form' => $form->createView()
+        ]
         );
     }
 }

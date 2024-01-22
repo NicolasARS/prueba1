@@ -8,6 +8,7 @@
 	<h2>Bienvenido a la web de almacenes.</h2>
 	<p>Página de inicio</p>
     {% if app.user %}
+                <button><a href="{{ path('secciones') }}"><i class="fa fa-sign-out sr-icons"></i>secciones</a></button>
                 <button><a href="{{ path('alta') }}"><i class="fa fa-sign-out sr-icons"></i>Alta nuevo empleado</a></button>
                 <button><a href="{{ path('app_logout') }}"><i class="fa fa-sign-out sr-icons"></i> {{ app.user.name }} - Logout</a></button>
                   {% if is_granted('ROLE_ADMIN') %}

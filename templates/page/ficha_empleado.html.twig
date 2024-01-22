@@ -8,8 +8,8 @@
         <li><strong>Nombre: </strong>{{ empleado.nombre}}</li>
         <li><strong>Apellidos: </strong>{{ empleado.apellidos}}</li>
         <li><strong>Avatar: </strong><br>
-        <img src={{ asset('/images/' ~ empleado.foto) }}/></li>
-        <li><strong>Sccion: </strong>{{ empleado.seccion}}</li>
+        <img src={{ asset('/images/empleados/' ~ empleado.foto) }}/></li>
+        <li><strong>Seccion: </strong>{{ empleado.seccion.nombre}}</li>
     </ul>
     {% else %}
         <p>Contacto no encontrado</p>
