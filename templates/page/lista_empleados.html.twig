@@ -1,8 +1,8 @@
 {% extends 'base.html.twig' %}
-{% block title %}Ficha Empleado{% endblock %}
+{% block title %}Lista de Empleados{% endblock %}
 {% block body %}
-<h1>Ficha del empleado</h1>
-    {% if empleado %}
+<h1>Resultados de la busqueda</h1>
+    {% for empleado in empleados %}
     <ul>
         <li><strong>Empleado #{{ empleado.id}}</strong></li>
         <li><strong>Nombre: </strong>{{ empleado.nombre}}</li>
@@ -11,7 +11,8 @@
         <img src={{ asset('/images/empleados/' ~ empleado.foto) }}/></li>
         <li><strong>Seccion: </strong>{{ empleado.seccion.nombre}}</li>
     </ul>
+    <hr>
     {% else %}
         <p>Empleado no encontrado</p>
-    {% endif %}
+    {% endfor %}
 {% endblock %}

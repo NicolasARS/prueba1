@@ -21,6 +21,15 @@ class EmpleadoRepository extends ServiceEntityRepository
         parent::__construct($registry, Empleado::class);
     }
 
+    public function findBySurname($text): array
+    {
+        $qb = $this->createQueryBuilder('c')
+        ->andWHere('c.apellidos lIKE :text')
+        ->setParameter('text', '%' . $text . '%')
+        ->getQuery();
+        return $qb->execute();
+    }
+
 //    /**
 //     * @return Empleado[] Returns an array of Empleado objects
 //     */

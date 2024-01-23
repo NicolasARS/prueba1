@@ -16,9 +16,14 @@ use Symfony\Component\HttpFoundation\Request;
 class PageController extends AbstractController
 {
     #[Route('/', name: 'index')]
-    public function index(): Response
+    public function index(ManagerRegistry $doctrine): Response
     {
-        return $this->render('page/index.html.twig'
+        $empleadoRepo = $doctrine->getRepository(Empleado::Class);
+        $empleados = $empleadoRepo->findAll();
+
+        return $this->render('page/index.html.twig', [
+            'empleados' => $empleados
+        ]
         );
     }
 
@@ -49,9 +54,10 @@ class PageController extends AbstractController
     $entityManager = $doctrine->getManager();
     $entityManager->persist($empleado);
     $entityManager->flush();
+    $empleadoId = $empleado->getId();
 
     // Redirigir o mostrar una confirmación
-    return $this->redirectToRoute('ficha-empleado');
+    return $this->redirectToRoute('ficha-empleado', ['id' => $empleadoId]);
         }
 
         return $this->render('page/alta.html.twig', [
@@ -65,7 +71,6 @@ class PageController extends AbstractController
     {
         $empleadoRepo = $doctrine->getRepository(Empleado::Class);
         $empleado = $empleadoRepo->find($id);
-
 
         return $this->render('page/ficha_empleado.html.twig', [
             'empleado' => $empleado
@@ -89,6 +94,46 @@ class PageController extends AbstractController
         
         return $this->render('page/secciones.html.twig', [
             'form' => $form->createView()
+        ]
+        );
+    }
+
+    #[Route('/empleado/eliminar/{id}', name: 'eliminar_empleado')]
+    public function delete(ManagerRegistry $doctrine, $id): Response{
+        $entityManager = $doctrine->getManager();
+        $repositorio = $doctrine->getRepository(Empleado::class);
+        $empleado = $repositorio->find($id);
+        if ($empleado){
+            try
+            {
+                $entityManager->remove($empleado);
+                $entityManager->flush();
+                return $this->redirectToRoute('index');
+            }catch (\Exception $e){
+                return new Response("Error eliminando el objeto");
+            }
+        }else
+            return $this->render('ficha_contacto.html.twig', ['empleado' => null]);
+    }
+
+    #[Route('/empleado/buscar/{texto}', name: 'buscar_empleado')]
+    public function buscar(ManagerRegistry $doctrine, $texto): Response
+    {
+        $repositorio = $doctrine->getRepository(Empleado::class);
+        $empleados = $repositorio->findBySurname($texto);
+        
+        return $this->render('page/lista_empleados.html.twig', 
+        ['empleados' => $empleados]);
+    }
+
+    #[Route('/lista-empleados', name: 'lista_empleados')]
+    public function lista_empleados(ManagerRegistry $doctrine): Response
+    {
+        $empleadoRepo = $doctrine->getRepository(Empleado::Class);
+        $empleados = $empleadoRepo->findAll();
+
+        return $this->render('page/lista_empleados.html.twig', [
+            'empleados' => $empleados
         ]
         );
     }
